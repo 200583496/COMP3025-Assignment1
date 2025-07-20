@@ -2,66 +2,61 @@ package ca.georgiancollege.comp3025_assignment1;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.lifecycle.ViewModelProvider;
 
-import java.io.IOException;
+import java.util.List;
 
- import okhttp3.Call;
- import okhttp3.Callback;
- import okhttp3.Response;
+import ca.georgiancollege.comp3025_assignment1.databinding.ActivityMainBinding;
 
 public class MainActivity extends AppCompatActivity {
+
+    ActivityMainBinding binding;
+    MovieViewModel viewModel;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
-        setContentView(R.layout.activity_main);
+        
+        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+        
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
         
-        // test API connection
-        fetchMovies("batman");
-    }
-
-    private void fetchMovies(String searchQuery) {
-        String apiUrl = "https://www.omdbapi.com/?apikey=f9e0fd04&s=" + searchQuery;
+        viewModel = new ViewModelProvider(this).get(MovieViewModel.class);
         
-        ApiClient.get(apiUrl, new Callback() {
+        viewModel.getMovieData().observe(this, movieList -> {
+            Log.i("tag", "Update View");
+            updateMovieList(movieList);
+        });
+        
+        binding.searchButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onFailure(@NonNull Call call, @NonNull IOException e) {
-                Log.e("tag", "Failed to fetch movies: " + e.getMessage());
-            }
-
-            @Override
-            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
-                if (response.isSuccessful()) {
-                    assert response.body() != null;
-                    String responseData = response.body().string();
-                    
-                    runOnUiThread(() -> {
-                        Log.i("tag", "Movies data: " + responseData);
-                        try {
-                            parseMovieData(responseData);
-                        } catch (Exception e) {
-                            Log.e("tag", "Error parsing movie data: " + e.getMessage());
-                        }
-                    });
+            public void onClick(View v) {
+                String movieName = binding.searchEditText.getText().toString();
+                if (movieName.isEmpty()) {
+                    return;
                 }
+                viewModel.searchMovies(movieName);
             }
         });
     }
 
-    private void parseMovieData(String responseData) {
-        Log.i("tag", "Parsing movie data: " + responseData);
+    private void updateMovieList(List<Movie> movieList) {
+        for (Movie movie : movieList) {
+            Log.i("tag", "Movie in list: " + movie.getTitle() + " (" + movie.getYear() + ")");
+        }
+        Log.i("tag", "Total movies: " + movieList.size());
     }
 }
