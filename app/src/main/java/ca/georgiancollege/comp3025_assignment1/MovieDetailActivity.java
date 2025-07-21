@@ -2,6 +2,8 @@ package ca.georgiancollege.comp3025_assignment1;
 
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -21,6 +23,7 @@ import okhttp3.Response;
 
 public class MovieDetailActivity extends AppCompatActivity {
 
+    private Button backButton;
     private ImageView posterImageView;
     private TextView titleTextView;
     private TextView yearTextView;
@@ -36,6 +39,7 @@ public class MovieDetailActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_movie_detail);
 
+        backButton = findViewById(R.id.backButton);
         posterImageView = findViewById(R.id.detailPosterImageView);
         titleTextView = findViewById(R.id.detailTitleTextView);
         yearTextView = findViewById(R.id.detailYearTextView);
@@ -45,6 +49,14 @@ public class MovieDetailActivity extends AppCompatActivity {
         genreTextView = findViewById(R.id.detailGenreTextView);
         runtimeTextView = findViewById(R.id.detailRuntimeTextView);
         plotTextView = findViewById(R.id.detailPlotTextView);
+
+        // Set up back button click listener
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
 
         String imdbID = getIntent().getStringExtra("imdbID");
         fetchMovieDetails(imdbID);
