@@ -10,7 +10,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.lifecycle.ViewModelProvider;
+import androidx.recyclerview.widget.LinearLayoutManager;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import ca.georgiancollege.comp3025_assignment1.databinding.ActivityMainBinding;
@@ -19,6 +21,8 @@ public class MainActivity extends AppCompatActivity {
 
     ActivityMainBinding binding;
     MovieViewModel viewModel;
+    MovieAdapter movieAdapter;
+    List<Movie> movieList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +37,12 @@ public class MainActivity extends AppCompatActivity {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
         });
+        
+        movieList = new ArrayList<>();
+        movieAdapter = new MovieAdapter(movieList);
+        
+        binding.moviesRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        binding.moviesRecyclerView.setAdapter(movieAdapter);
         
         viewModel = new ViewModelProvider(this).get(MovieViewModel.class);
         
@@ -53,10 +63,11 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-    private void updateMovieList(List<Movie> movieList) {
-        for (Movie movie : movieList) {
-            Log.i("tag", "Movie in list: " + movie.getTitle() + " (" + movie.getYear() + ")");
-        }
+    private void updateMovieList(List<Movie> movies) {
+        movieList.clear();
+        movieList.addAll(movies);
+        movieAdapter.notifyDataSetChanged();
+        
         Log.i("tag", "Total movies: " + movieList.size());
     }
 }
