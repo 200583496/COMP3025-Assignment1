@@ -1,5 +1,6 @@
 package ca.georgiancollege.comp3025_assignment1;
 
+import android.content.Intent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -35,6 +36,15 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         holder.yearTextView.setText(movie.getYear());
         
         Picasso.get().load(movie.getPoster()).into(holder.posterImageView);
+
+        holder.itemView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(holder.itemView.getContext(), MovieDetailActivity.class);
+                intent.putExtra("imdbID", movie.getImdbID());
+                holder.itemView.getContext().startActivity(intent);
+            }
+        });
     }
 
     @Override
